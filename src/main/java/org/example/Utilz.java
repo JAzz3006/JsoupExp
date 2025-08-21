@@ -5,8 +5,22 @@ import org.jsoup.nodes.Document;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Utilz {
+
+    public static String normalize(String raw) throws URISyntaxException {
+        URI uri = new URI(raw);
+        String result = raw;
+        String query = uri.getQuery();
+        if (query != null){
+            result = raw.replace(query,"");
+        }
+        uri.normalize();
+        return result;
+    }
 
     public static boolean isAccessible(String url){
         boolean isAlive = false;

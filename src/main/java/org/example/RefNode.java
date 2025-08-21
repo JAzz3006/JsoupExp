@@ -2,25 +2,27 @@ package org.example;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RefNode implements Node{
+public class RefNode {
     private final String value;
-    private Set<Node> children = new HashSet<>();
+    private Set<RefNode> children = new HashSet<>();
 
     public RefNode(String value) {
         this.value = value;
     }
 
-    @Override
     public String getValue() {
         return value;
     }
 
-    @Override
-    public Set<Node> getChildren() {
+    public Set<RefNode> getChildren() {
         return children;
     }
 
-    public void setChildren(Set<Node> nodes){
+    public void addChild(RefNode child){
+        children.add(child);
+    }
+
+    public void setChildren(Set<RefNode> nodes){
         children = nodes;
     }
 }
