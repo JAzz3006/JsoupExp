@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 public class App
 {
+    public static final String MAIN_URL = "https://ria.ru/";
+
     public static void main( String[] args ) throws IOException, URISyntaxException {
 
         String url = "https://ria.ru/video/";

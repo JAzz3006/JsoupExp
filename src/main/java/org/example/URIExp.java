@@ -1,19 +1,74 @@
 package org.example;
-
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class URIExp {
-    public static void main(String[] args) throws URISyntaxException {
+    public static final String MAIN_URL = "https://ria.ru/";
 
-        String uriString = "https://ria.ru/20250715/qwer.html#hua";
-        System.out.println(uriString + " - с этим работаем");
+    public static void main(String[] args) throws URISyntaxException, IOException {
+        List<Pattern>forbidden = Utilz.getForbidden(MAIN_URL);
+        forbidden.forEach(System.out::println);
 
-        URI uri = new URI(uriString);
+
+
+
+        //File robotsTxt = Utilz.saveRobotsTxt(MAIN_URL);
+        //if (Files.find(Utilz.SAVE_DIR + Utilz.getFileName(MAIN_URL)))
+        //List<String> lines = Files.readAllLines(robotsTxt.toPath());
+        //lines.forEach(System.out::println);
+
+        //generalExpos("https://example.com/search?query=books&page=2#reviews");
+        //System.out.println(normalize1("https://example.com/search?query=books&page=2#reviews"));
+}
+
+    public static String normalize(String raw) throws URISyntaxException {
+        String result ="";
+        URI uri = new URI(raw);
+        String query = uri.getQuery();
+        String frag = uri.getFragment();
+
+        if (frag != null){
+            result = raw.replace("#" + frag, "");
+        } else if (query != null) {
+            result = result.replace("?" + query, "");
+        }
+        return result;
+    }
+
+    public static String normalize1(String raw) throws URISyntaxException {
+        String result ="";
+
+        URI uri = new URI(raw);
+        String syntax1 = "://";
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        String path = uri.getPath();
+        String query = uri.getQuery();
+        String frag = uri.getFragment();
+
+
+        return String.join("", scheme, syntax1, host, path);
+
+    }
+
+
+    public static void generalExpos(String url) throws URISyntaxException {
+        System.out.println(url + " - с этим работаем");
+
+        URI uri = new URI(url);
         System.out.println(uri.getHost() + " - это хост");
         System.out.println(uri.getQuery() + " - это квери");
         System.out.println(uri.getPath()+ " - это патх");
         System.out.println(uri.getScheme()+ " - это схема");
+        System.out.println(uri.getRawSchemeSpecificPart() + " - это raw-схема");
         System.out.println(uri.getRawFragment()+ " - это РауФрагмент");
         System.out.println(uri.normalize() + " - normalize");
         System.out.println(uri.getAuthority() + " - athoritah");
@@ -21,7 +76,7 @@ public class URIExp {
         System.out.println(uri.getUserInfo() + " - user info");
         String result = "start value";
         if (uri.getFragment() != null){
-            result = uriString.replace("#" + uri.getFragment(), "");
+            result = url.replace("#" + uri.getFragment(), "");
         }
         System.out.println();
 
