@@ -1,7 +1,4 @@
 package org.example;
-import org.jsoup.Jsoup;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -10,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 public class App

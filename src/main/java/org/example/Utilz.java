@@ -1,10 +1,11 @@
 package org.example;
+import com.sun.jndi.toolkit.url.Uri;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -12,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Utilz {
@@ -28,7 +31,6 @@ public class Utilz {
             boolean inApplicableSection = false;
             for (String line : lines) {
                 if (line.isEmpty() || line.startsWith("#")) continue;
-
                 if (line.toLowerCase().contains("user-agent")) {
                     String uaType = line.split(":", 2)[1].trim();
                     inApplicableSection = uaType.equals("*");
@@ -42,49 +44,42 @@ public class Utilz {
                         !line.split(":",2)[1].trim().equals("*")){
                     inApplicableSection = false;
                 }
-
             }
         }else System.out.println("File 'robots.txt' not found!");
         return forbidden;
     }
 
     public static String normalize(String raw) throws URISyntaxException {
+        if (raw == null || raw.isEmpty()) return null;
         URI uri = new URI(raw);
-        String result = raw;
-        String query = uri.getQuery();
-        if (query != null){
-            result = raw.replace(query,"");
-        }
-        uri.normalize();
-        return result;
+        StringBuilder builder = new StringBuilder();
+        String scheme = (uri.getScheme() == null ? "https://" : uri.getScheme()).toLowerCase(Locale.ROOT);
+        String host = (uri.getHost() == null ? "" : uri.getHost()).toLowerCase(Locale.ROOT);
+        String path = (uri.getPath() == null || uri.getPath().isEmpty() ? "/" : uri.getPath()).toLowerCase(Locale.ROOT);
+        int port = uri.getPort();
+        if (path.length() > 1 && path.endsWith("/")) path = path.substring(0, path.length() - 1);
+        builder.append(scheme).append("://").append(host);
+        if (port != -1 && port != 80 && port != 443) builder.append(":").append(port);
+        builder.append(path);
+        return builder.toString();
     }
 
-    public static boolean isAccessible(String url){
-        boolean isAlive = false;
-        try {
-            Connection.Response response = Jsoup.connect(url)
-                    .ignoreHttpErrors(true) // не падать на 404
-                    .timeout(5000)
-                    .execute();
-            int statusCode = response.statusCode();
-            if (statusCode >= 200 && statusCode < 400) {
-                isAlive = true;
-            } else {
-                System.out.println("not accessible URL!");;
-            }
-        } catch (Exception e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        }
-        return isAlive;
+    public static boolean isHtml(String url){
+        String u = url.toLowerCase(Locale.ROOT);
+        return u.endsWith(".jpg") || u.endsWith(".jpeg") ||
+                u.endsWith(".gif") || u.endsWith(".png") ||
+                u.endsWith(".pdf") || u.endsWith("zip") ||
+                u.endsWith(".mp3") || u.endsWith(".mp4") ||
+                u.endsWith(".avi") || u.endsWith(".mov") ||
+                u.endsWith(".rar") || u.endsWith(".webp");
     }
 
-    public static boolean isUrl(String url){
-        boolean isUrl = false;
-        String regex = "https?://[^\\s]+";
-        if (url.matches(regex)){
-            isUrl = true;
-        }
-        return isUrl;
+    public static boolean sameHost(String u1, String u2) throws MalformedURLException {
+        Uri uri1 = new Uri(u1);
+        Uri uri2 = new Uri(u2);
+        String h1 = Optional.ofNullable(uri1.getHost()).orElse("");
+        String h2 = Optional.ofNullable(uri2.getHost()).orElse("");
+        return h1.equalsIgnoreCase(h2);
     }
 
     public static File saveRobotsTxt(String url){
@@ -126,6 +121,7 @@ public class Utilz {
         int endIndex = cutUrl.indexOf("/");
         return String.join("-",cutUrl.substring(0,endIndex), suffix);
     }
+
     public static String  getWorkingDir() {
         return System.getProperty("user.dir");
     }
