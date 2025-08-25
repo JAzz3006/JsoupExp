@@ -16,8 +16,8 @@ public class App
     public static void main( String[] args ) throws IOException, URISyntaxException {
 
         String url = "https://ria.ru/video/";
-        Set<RefNode> children = SiteMapGenerator.generateChildren(url);
-        saveChildren(children);
+
+
 
     }
     public static void saveChildren(Set<RefNode> children) throws IOException {
