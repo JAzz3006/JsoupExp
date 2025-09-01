@@ -39,7 +39,7 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
 
             if (resp.statusCode() >= 200
                     && resp.statusCode() < 400
-                    && Optional.ofNullable(resp.contentType()).orElse("").toLowerCase(Locale.ROOT).contains("text/html\"")){
+                    && Optional.ofNullable(resp.contentType()).orElse("").toLowerCase(Locale.ROOT).contains("text/html")){
                 doc = resp.parse();
             }else return node;
         } catch (IOException e) {
