@@ -15,7 +15,7 @@ public class App
 {
     public static final String MAIN_URL = "https://ria.ru/";
 
-    public static void main( String[] args ) throws IOException{
+    public static void main( String[] args ) throws IOException, URISyntaxException {
 
         Document doc = HtmlConnect.getDoc(8000, true,true);
         if (doc == null){

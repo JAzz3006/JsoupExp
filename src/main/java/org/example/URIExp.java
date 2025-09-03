@@ -14,19 +14,16 @@ public class URIExp {
     public static final String MAIN_URL = "https://ria.ru/";
 
     public static void main(String[] args) throws URISyntaxException, IOException {
-        List<Pattern>forbidden = Utilz.getForbidden(MAIN_URL);
-        forbidden.forEach(System.out::println);
+//        List<Pattern> forbidden = Utilz.getForbidden(App.MAIN_URL);
+//        forbidden.forEach(System.out::println);
+        String test = "/whatf{{or";
+        String regex = ".*\\{\\{.*";
+        Pattern p = Pattern.compile(regex);
+        System.out.println(p.matcher(test).matches());
+//generalExpos("https://ria.ru/?watever");
 
 
 
-
-        //File robotsTxt = Utilz.saveRobotsTxt(MAIN_URL);
-        //if (Files.find(Utilz.SAVE_DIR + Utilz.getFileName(MAIN_URL)))
-        //List<String> lines = Files.readAllLines(robotsTxt.toPath());
-        //lines.forEach(System.out::println);
-
-        //generalExpos("https://example.com/search?query=books&page=2#reviews");
-        //System.out.println(normalize1("https://example.com/search?query=books&page=2#reviews"));
 }
 
     public static String normalize(String raw) throws URISyntaxException {

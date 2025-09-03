@@ -14,7 +14,7 @@ public class Utilz {
     public static final File SAVE_DIR = new File(System.getProperty("user.dir") + "/src/output/");
 
     //получает forbidden из готового файла на диске
-    public static List<Pattern> getForbidden(String url) throws IOException {
+    public static List<Pattern> getForbidden(String url) throws IOException, URISyntaxException {
         List<Pattern> forbidden = new ArrayList<>();
 
         String fileNameRobotsTxt = Utilz.getFileName(App.MAIN_URL);
@@ -29,9 +29,28 @@ public class Utilz {
                     String uaType = line.split(":", 2)[1].trim();
                     inApplicableSection = uaType.equals("*");
                 }
+
                 if (inApplicableSection && line.toLowerCase().contains("disallow")) {
                     String forbiddenUrl = line.split(":",2)[1].trim();
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(forbiddenUrl);
+
                     String regex = forbiddenUrl.replace("*",".*");
+
+                if (regex.startsWith("/")){
+                        regex = regex.replaceFirst("/", "^/");
+                    }
+                    if (regex.endsWith("/")){
+                        regex = String.join("", regex.substring(0, regex.length() - 1), "(/.*|$)");
+                    }
+                    if (regex.contains("?")){
+                        regex = regex.replace("?", "\\?");
+                    }
+
+                    builder.append(" - ").append(regex).append(" - ").append(Pattern.compile(regex).toString());
+                    System.out.println(builder);
+
                     forbidden.add(Pattern.compile(regex));
                 }
                 if (line.toLowerCase().startsWith("user-agent:") &&
