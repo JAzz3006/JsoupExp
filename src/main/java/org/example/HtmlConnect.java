@@ -7,7 +7,9 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 public class HtmlConnect {
+
     public static final String USER_AGENT_1 = "Mozilla/5.0 (compatible, SiteMapBot/1.0";
+
     public static Connection.Response getResponse(
             String userAgent,
             int timeOut,

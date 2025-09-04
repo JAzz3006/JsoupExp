@@ -22,6 +22,9 @@ public class App
             System.out.println("Что-то пошло не так");
             return;
         }
+        TreeSet<String> visited = new TreeSet<>();
+        visited.add(MAIN_URL);
+
         String cssQuery1 = "a[href]";
         List<Pattern> forbidden = Utilz.getForbidden(App.MAIN_URL);
 
@@ -32,10 +35,13 @@ public class App
                 .filter(Utilz::isHtml)
                 .filter(ref -> Utilz.isForbidden(forbidden, ref))
                 .distinct()
+                .filter(visited::add)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        Utilz.printForbidden(forbidden);
-        //Utilz.saveFile(refStrings);
+
+
+//        Utilz.printForbidden(forbidden);
+        Utilz.saveFile(refStrings);
 
     }
     public static void saveChildren(Set<RefNode> children) throws IOException {

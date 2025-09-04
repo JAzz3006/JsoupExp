@@ -1,5 +1,7 @@
 package org.example;
+
 import org.jsoup.Jsoup;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,41 +27,41 @@ public class Utilz {
             boolean inApplicableSection = false;
             for (String line : lines) {
                 if (line.isEmpty() || line.startsWith("#")) continue;
+
                 if (line.toLowerCase().contains("user-agent")) {
                     String uaType = line.split(":", 2)[1].trim();
                     inApplicableSection = uaType.equals("*");
                 }
 
                 if (inApplicableSection && line.toLowerCase().contains("disallow")) {
-                    String forbiddenUrl = line.split(":",2)[1].trim();
+                    String forbiddenUrl = line.split(":", 2)[1].trim();
 
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(forbiddenUrl);
-
-                    String regex = forbiddenUrl.replace("*",".*");
-
-                if (regex.startsWith("/")){
-                        regex = regex.replaceFirst("/", "^/");
-                    }
-                    if (regex.endsWith("/")){
-                        regex = String.join("", regex.substring(0, regex.length() - 1), "(/.*|$)");
-                    }
-                    if (regex.contains("?")){
-                        regex = regex.replace("?", "\\?");
-                    }
-
-                    builder.append(" - ").append(regex).append(" - ").append(Pattern.compile(regex).toString());
-                    System.out.println(builder);
+                    String regex = ruleToRegex(forbiddenUrl);
 
                     forbidden.add(Pattern.compile(regex));
                 }
                 if (line.toLowerCase().startsWith("user-agent:") &&
-                        !line.split(":",2)[1].trim().equals("*")){
+                        !line.split(":", 2)[1].trim().equals("*")) {
                     inApplicableSection = false;
                 }
             }
-        }else System.out.println("File 'robots.txt' not found!");
+        } else System.out.println("File 'robots.txt' not found!");
         return forbidden;
+    }
+
+    //конвертирует правило из robots.txt в регулярное выражение
+    public static String ruleToRegex(String rule){
+        String regex = rule.replace("*",".*");
+        if (regex.startsWith("/")) {
+            regex = rule.replaceFirst("/", "^/");
+        }
+        if (regex.endsWith("/")) {
+            regex = String.join("", regex.substring(0, regex.length() - 1), "(/.*|$)");
+        }
+        if (regex.contains("?")) {
+            regex = regex.replace("?", "\\?");
+        }
+        return regex;
     }
 
     //нормализует ссылку для дальнейшей работы с ней
@@ -77,24 +79,29 @@ public class Utilz {
             if (port != -1 && port != 80 && port != 443) builder.append(":").append(port);
             builder.append(path);
             return builder.toString();
-        }catch (URISyntaxException e){
+        } catch (URISyntaxException e) {
             System.out.println("Некорректный URI: " + raw);
             return null;
         }
     }
 
-    public static boolean isForbidden (List<Pattern> forbidden, String ref){
-        boolean isForbidden = false;
-        for (Pattern pattern : forbidden){
-            if (pattern.matcher(ref).matches()){
-                isForbidden = true;
+    public static boolean isForbidden(List<Pattern> forbidden, String ref) {
+        boolean isForbidden = true;
+        for (Pattern pattern : forbidden) {
+            try {
+                URI uri = new URI(ref);
+                if (pattern.matcher(uri.getPath()).matches()) {
+                    isForbidden = false;
+                }
+            } catch (URISyntaxException ex) {
+                System.out.println("Что-то не так с URI " + ex.getMessage());
             }
         }
         return isForbidden;
     }
 
     //отсекает ссылк на не-html
-    public static boolean isHtml(String url){
+    public static boolean isHtml(String url) {
         String u = url.toLowerCase(Locale.ROOT);
         return !u.endsWith(".jpg") || !u.endsWith(".jpeg") ||
                 !u.endsWith(".gif") || !u.endsWith(".png") ||
@@ -106,20 +113,20 @@ public class Utilz {
 
     //отсекает ссылки,идущие во вне
     public static boolean sameHost(String u1) {
-        try{
+        try {
             URI uri1 = new URI(u1);
             URI uri2 = new URI(App.MAIN_URL);
             String h1 = Optional.ofNullable(uri1.getHost()).orElse("");
             String h2 = Optional.ofNullable(uri2.getHost()).orElse("");
             return h1.equalsIgnoreCase(h2);
-        }catch (URISyntaxException e){
+        } catch (URISyntaxException e) {
             System.out.println("Wrong URI");
             return false;
         }
     }
 
     //сохраняет на диск robots.txt чтобы потом получить forbidden
-    public static File saveRobotsTxt(String url){
+    public static File saveRobotsTxt(String url) {
         String outputFile = getFileName(url);
         if (!SAVE_DIR.exists()) {
             SAVE_DIR.mkdirs();
@@ -151,9 +158,9 @@ public class Utilz {
     }
 
     //возвращает соответствующий ссылке robots.txt если он существует
-    public static File getRobots(String fileName){
+    public static File getRobots(String fileName) {
         File file = new File(SAVE_DIR + fileName);
-        if (!file.exists()){
+        if (!file.exists()) {
             System.out.println("file not found");
             return null;
         }
@@ -161,22 +168,22 @@ public class Utilz {
     }
 
     //возвращает строку, содержащую имя файла robots.txt, который будет соответствовать переданной ссылке
-    public static String getFileName(String url){
+    public static String getFileName(String url) {
         String suffix = "robots.txt";
         String regex = "https?://";
-        String cutUrl = url.replaceAll(regex,"");
+        String cutUrl = url.replaceAll(regex, "");
         int endIndex = cutUrl.indexOf("/");
-        return String.join("-",cutUrl.substring(0,endIndex), suffix);
+        return String.join("-", cutUrl.substring(0, endIndex), suffix);
     }
 
     //возвращает ответ по результату коннекта к главной ссылке (константа в Арр)
 
 
-    public static String  getWorkingDir() {
+    public static String getWorkingDir() {
         return System.getProperty("user.dir");
     }
 
-    public static void printForbidden(List<Pattern> forbidden){
+    public static void printForbidden(List<Pattern> forbidden) {
         forbidden.forEach(pattern -> System.out.println(pattern.toString()));
     }
 

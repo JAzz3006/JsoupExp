@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,12 +17,22 @@ public class URIExp {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
 //        List<Pattern> forbidden = Utilz.getForbidden(App.MAIN_URL);
-//        forbidden.forEach(System.out::println);
-        String test = "/whatf{{or";
-        String regex = ".*\\{\\{.*";
-        Pattern p = Pattern.compile(regex);
-        System.out.println(p.matcher(test).matches());
-//generalExpos("https://ria.ru/?watever");
+
+        String randomRef = "https://ria.ru/20250620/matkapital-1733022511.html";
+//        String test = "/whatf{{or";
+//        String test1 = "/rul%7B%7B123";
+//        String rule = "*%7B%7B*";
+//        String decoded = URLDecoder.decode(rule, StandardCharsets.UTF_8);
+//        System.out.println(decoded + " - это декодированное правило");
+//        String regDecoded = Pattern.quote(decoded);
+//        System.out.println(regDecoded + " - это результат по quote()");
+//        regDecoded = regDecoded.replace("*", ".*");
+//        Pattern p = Pattern.compile(regDecoded);
+//        System.out.println(p + " - это готовый паттерн");
+//        System.out.println(p.matcher(test1).matches() + " - это паттерн р");
+//        Pattern newP = Pattern.compile(".*%7B%7B.*");
+//        System.out.println(newP.matcher(test1).matches() + " - это паттерн newP");
+generalExpos(randomRef);
 
 
 

@@ -30,18 +30,19 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
         Document doc = null;
         try {
             throttle.acquire();
-            Connection.Response resp = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (compatible, SiteMapBot/1.0")
-                    .timeout(8000)
-                    .followRedirects(true)
-                    .ignoreHttpErrors(true)
-                    .execute();
-
-            if (resp.statusCode() >= 200
-                    && resp.statusCode() < 400
-                    && Optional.ofNullable(resp.contentType()).orElse("").toLowerCase(Locale.ROOT).contains("text/html")){
-                doc = resp.parse();
-            }else return node;
+            doc = HtmlConnect.getDoc(8000, true, true);
+//            Connection.Response resp = Jsoup.connect(url)
+//                    .userAgent("Mozilla/5.0 (compatible, SiteMapBot/1.0")
+//                    .timeout(8000)
+//                    .followRedirects(true)
+//                    .ignoreHttpErrors(true)
+//                    .execute();
+//
+//            if (resp.statusCode() >= 200
+//                    && resp.statusCode() < 400
+//                    && Optional.ofNullable(resp.contentType()).orElse("").toLowerCase(Locale.ROOT).contains("text/html")){
+//                doc = resp.parse();
+//            }else return node;
         } catch (IOException e) {
             Thread.currentThread().interrupt();
             return node;
