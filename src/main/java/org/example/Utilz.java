@@ -1,7 +1,5 @@
 package org.example;
-
 import org.jsoup.Jsoup;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

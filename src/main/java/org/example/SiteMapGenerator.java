@@ -1,56 +1,83 @@
 package org.example;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SiteMapGenerator extends RecursiveTask<RefNode> {
-    private final String url;
-    private AtomicInteger budget = new AtomicInteger(5000);
-    private Set<RefNode> visited= new HashSet<>();
-    private Semaphore throttle;
+    private static final Set<String> visited = ConcurrentHashMap.newKeySet();
+    private static final Semaphore throttle = new Semaphore(4);
+    private static  final AtomicInteger budget = new AtomicInteger(300);
+    private static final List<Pattern> forbidden;
+    static {
+        try {
+            forbidden = Utilz.getForbidden(App.MAIN_URL);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    public SiteMapGenerator(String url) {
+    private final String url;
+
+    public SiteMapGenerator(String url){
         this.url = url;
     }
 
     @Override
     protected RefNode compute() {
         RefNode node = new RefNode(url);
-        if (budget.get() <= 0) return node;
+        if (budget.getAndDecrement() < 0){
+            System.out.println("Out of budget");
+            return node;
+        }
+        List<SiteMapGenerator> tasks = new ArrayList<>();
         Document doc = null;
         try {
             throttle.acquire();
             doc = HtmlConnect.getDoc(8000, true, true);
-//            Connection.Response resp = Jsoup.connect(url)
-//                    .userAgent("Mozilla/5.0 (compatible, SiteMapBot/1.0")
-//                    .timeout(8000)
-//                    .followRedirects(true)
-//                    .ignoreHttpErrors(true)
-//                    .execute();
-//
-//            if (resp.statusCode() >= 200
-//                    && resp.statusCode() < 400
-//                    && Optional.ofNullable(resp.contentType()).orElse("").toLowerCase(Locale.ROOT).contains("text/html")){
-//                doc = resp.parse();
-//            }else return node;
+            if (doc == null){
+                System.out.println("Что-то пошло не так при получении кода страницы");
+                return node;
+            }
+            visited.add(Utilz.normalize(url));
+
+            String cssQuery1 = "a[href]";
+            List<String> refList = doc.select(cssQuery1).stream()
+                    .map(e -> e.attr("abs:href"))
+                    .map(Utilz::normalize)
+                    .filter(Utilz::sameHost)
+                    .filter(Utilz::isHtml)
+                    .filter(ref -> Utilz.isForbidden(forbidden, ref))
+                    .distinct()
+                    .filter(visited::add)
+                    .collect(Collectors.toList());
+
+            for (String ref : refList){
+                SiteMapGenerator task = new SiteMapGenerator(ref);
+                task.fork();
+                tasks.add(task);
+            }
+
+            Thread.sleep(300);
+
         } catch (IOException e) {
             Thread.currentThread().interrupt();
             return node;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }finally {
+            throttle.release();
         }
-
+        for (SiteMapGenerator task : tasks){
+            RefNode child = task.join();
+            node.addChild(child);
+        }
         return node;
     }
-
 }
