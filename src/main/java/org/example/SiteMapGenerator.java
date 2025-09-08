@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class SiteMapGenerator extends RecursiveTask<RefNode> {
     private static final Set<String> visited = ConcurrentHashMap.newKeySet();
-    private static final Semaphore throttle = new Semaphore(4);
+    private static final Semaphore throttle = new Semaphore(2);
     private static  final AtomicInteger budget = new AtomicInteger(300);
     private static final List<Pattern> forbidden;
     static {
@@ -40,7 +40,7 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
         Document doc = null;
         try {
             throttle.acquire();
-            doc = HtmlConnect.getDoc(8000, true, true);
+            doc = HtmlConnect.getDoc(url,8000, true, true);
             if (doc == null){
                 System.out.println("Что-то пошло не так при получении кода страницы");
                 return node;

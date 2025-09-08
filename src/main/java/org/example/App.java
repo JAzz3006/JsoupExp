@@ -9,5 +9,11 @@ public class App
 
     public static void main( String[] args ) throws IOException, URISyntaxException {
         RefNode root = new ForkJoinPool().invoke(new SiteMapGenerator(MAIN_URL));
+        Visualizer.simpleDottedPrintSiteMap(root,"");
+    }
+
+    public static void oldMain(){
+        RefNode root = new ForkJoinPool().invoke(new SiteMapGenerator(MAIN_URL));
+        Visualizer.simpleDottedPrintSiteMap(root,"");
     }
 }
