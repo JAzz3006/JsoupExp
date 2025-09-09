@@ -8,7 +8,11 @@ public class App
     public static final String MAIN_URL = "https://ria.ru/";
 
     public static void main( String[] args ) throws IOException, URISyntaxException {
-        RefNode root = new ForkJoinPool().invoke(new SiteMapGenerator(MAIN_URL));
+
+        ForkJoinPool pool = new ForkJoinPool();
+        SiteMapGenerator task = new SiteMapGenerator(MAIN_URL);
+        RefNode root = pool.invoke(task);
+
         Visualizer.simpleDottedPrintSiteMap(root,"");
     }
 
