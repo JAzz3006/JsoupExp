@@ -26,6 +26,7 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
     private final String url;
 
     public SiteMapGenerator(String url){
+        url = Utilz.cleanUrl(url);
         this.url = url;
     }
 

@@ -62,6 +62,16 @@ public class Utilz {
         return regex;
     }
 
+    public static String cleanUrl(String url){
+        String rubbish = "#:~:text=";
+        if (url.contains(rubbish)){
+            int index = url.indexOf(rubbish);
+            return url.substring(0, index);
+
+        }
+        return url;
+    }
+
     //нормализует ссылку для дальнейшей работы с ней
     public static String normalize(String raw) {
         if (raw == null || raw.isEmpty()) return null;
@@ -118,7 +128,7 @@ public class Utilz {
             String h2 = Optional.ofNullable(uri2.getHost()).orElse("");
             return h1.equalsIgnoreCase(h2);
         } catch (URISyntaxException e) {
-            System.out.println("Wrong URI");
+            System.out.println("Wrong URI: " + u1);
             return false;
         }
     }

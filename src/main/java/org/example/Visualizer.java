@@ -30,7 +30,7 @@ public class Visualizer {
 
     public static void recursiveWrite(RefNode node, BufferedWriter writer, String indent, boolean isLast){
         try{
-            writer.write(indent + (isLast ? "└──" : "├──"));
+            writer.write(indent + (isLast ? "└──" : "├──") + node.getValue());
             writer.newLine();
             Iterator<RefNode> iterator = node.getChildren().iterator();
             while (iterator.hasNext()){

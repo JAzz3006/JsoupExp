@@ -29,7 +29,7 @@ public class HtmlConnect {
         Connection.Response resp = getResponse(url, USER_AGENT_1, timeOut, ignoreHttpErr, followRedirects);
         if (resp.statusCode() < 400 && resp.statusCode() >= 100){
             doc = resp.parse();
-        }else System.out.println("Something has gone wrong");
+        }else System.out.println("Something has gone wrong at " + url);
         return doc;
     }
 }
