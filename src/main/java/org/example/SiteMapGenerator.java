@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class SiteMapGenerator extends RecursiveTask<RefNode> {
     private static final Set<String> visited = ConcurrentHashMap.newKeySet();
     private static final Semaphore throttle = new Semaphore(2);
-    private static  final AtomicInteger budget = new AtomicInteger(300);
+    private static  final AtomicInteger budget = new AtomicInteger(600);
     private static final List<Pattern> forbidden;
     static {
         try {
@@ -67,10 +67,10 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
             Thread.sleep(300);
 
         } catch (IOException e) {
-            Thread.currentThread().interrupt();
             return node;
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
+            return node;
         }finally {
             throttle.release();
         }

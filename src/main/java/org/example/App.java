@@ -13,7 +13,7 @@ public class App
         SiteMapGenerator task = new SiteMapGenerator(MAIN_URL);
         RefNode root = pool.invoke(task);
 
-        Visualizer.simpleDottedPrintSiteMap(root,"");
+        Visualizer.saveSiteMapIntoFile(root);
     }
 
     public static void oldMain(){
