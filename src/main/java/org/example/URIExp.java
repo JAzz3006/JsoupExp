@@ -17,6 +17,7 @@ public class URIExp {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
 //        List<Pattern> forbidden = Utilz.getForbidden(App.MAIN_URL);
+        String oneMoreString = "http://www.defenceimagery.mod.uk/fotoweb/archives/5046-all news - stock/purged/archpurged/raf/2018/june/135eaw-official-20180427-0008-0331.jpg";
 
         String randomRef = "https://gu.spb.ru/634197/#:~:text=%D0%95%D0%B6%D0%B5%D0%B3%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BA%D0%BE%D0%BC%D0%BF%D0%B5%D0%BD%D1%81%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%B0%D1%8F%20%D0%B2%D1%8B%D0%BF%D0%BB%D0%B0%D1%82%D0%B0%20%D0%BD%D0%B0%20%D0%B4%D0%B5%D1%82%D0%B5%D0%B9%20%D0%";
 //        String test = "/whatf{{or";
@@ -32,8 +33,8 @@ public class URIExp {
 //        System.out.println(p.matcher(test1).matches() + " - это паттерн р");
 //        Pattern newP = Pattern.compile(".*%7B%7B.*");
 //        System.out.println(newP.matcher(test1).matches() + " - это паттерн newP");
-generalExpos(randomRef);
-
+//generalExpos(randomRef);
+        System.out.println(oneMoreString.replaceAll(" ", "%20"));
 
 
 }

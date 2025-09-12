@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class SiteMapGenerator extends RecursiveTask<RefNode> {
     private static final Set<String> visited = ConcurrentHashMap.newKeySet();
-    private static final Semaphore throttle = new Semaphore(2);
+    private static final Semaphore throttle = new Semaphore(4);
     private static  final AtomicInteger budget = new AtomicInteger(600);
     private static final List<Pattern> forbidden;
     static {

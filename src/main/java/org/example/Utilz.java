@@ -75,8 +75,14 @@ public class Utilz {
     //нормализует ссылку для дальнейшей работы с ней
     public static String normalize(String raw) {
         if (raw == null || raw.isEmpty()) return null;
+        String cleaned = raw.replace(" ","%20");
+        String rubbish = "#:~:text=";
+        if (cleaned.contains(rubbish)){
+            int index = cleaned.indexOf(rubbish);
+            cleaned = cleaned.substring(0, index);
+        }
         try {
-            URI uri = new URI(raw);
+            URI uri = new URI(cleaned);
             StringBuilder builder = new StringBuilder();
             String scheme = (uri.getScheme() == null ? "https://" : uri.getScheme()).toLowerCase(Locale.ROOT);
             String host = (uri.getHost() == null ? "" : uri.getHost()).toLowerCase(Locale.ROOT);
