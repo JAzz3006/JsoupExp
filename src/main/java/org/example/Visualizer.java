@@ -1,5 +1,6 @@
 package org.example;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Visualizer {
+    public static final Logger logger = LoggerFactory.getLogger(Visualizer.class);
     public static void simpleDottedPrintSiteMap(RefNode root, String indent){
         System.out.println(indent + root.getValue());
         for (RefNode node : root.getChildren()){
@@ -23,8 +25,7 @@ public class Visualizer {
         try(BufferedWriter writer = Files.newBufferedWriter(path)){
             recursiveWrite(root, writer, "", true);
         }catch (IOException e){
-            System.out.println("Ошибка: файл не создан " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Ошибка: файл не создан " + e.getMessage());
         }
     }
 
@@ -38,24 +39,23 @@ public class Visualizer {
                 boolean last = !iterator.hasNext();
                 recursiveWrite(currentChild, writer, indent + (isLast ? "    " : "│   "), last);
             }
-
         } catch (IOException e) {
-            System.out.println("Ошибка записи в файл " + e.getMessage());
+            logger.error("Ошибка записи в файл " + e.getMessage());
         }
     }
 
     public static String getFileName(){
         String fileName = "";
-        System.out.println("Введите имя файла:");
+        logger.info("Введите имя файла (для сохранения карты сайта):");
         Scanner scanner = new Scanner(System.in);
         try{
             fileName = scanner.nextLine();
             if (fileName.isBlank()){
-                System.out.println("Недопустимое имя файла");
+                logger.warn("Недопустимое имя файла");
                 getFileName();
             }
         } catch (InvalidPathException e) {
-            System.out.println("Ошибка: недопустимый символ в имени файла " + e.getMessage());
+            logger.warn("Ошибка: недопустимый символ в имени файла " + e.getMessage());
             getFileName();
         }
         return fileName;
@@ -66,13 +66,10 @@ public class Visualizer {
             try {
                 Files.createDirectories(Utilz.SAVE_DIR.toPath());
             } catch (IOException e) {
-                System.out.println("Не удалось создать директорию: " + e.getMessage());
+                logger.error("Не удалось создать директорию: " + e.getMessage());
                 return false;
             }
         }
         return true;
     }
-
-    
-
 }

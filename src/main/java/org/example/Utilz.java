@@ -1,16 +1,18 @@
 package org.example;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class Utilz {
+    private static final Logger logger = LoggerFactory.getLogger(Utilz.class);
     public static final File SAVE_DIR = new File(System.getProperty("user.dir") + "/src/output/");
 
     //получает forbidden из готового файла на диске
@@ -43,7 +45,7 @@ public class Utilz {
                     inApplicableSection = false;
                 }
             }
-        } else System.out.println("File 'robots.txt' not found!");
+        } else logger.info("File 'robots.txt' not found!");
         return forbidden;
     }
 
@@ -94,7 +96,7 @@ public class Utilz {
             builder.append(path);
             return builder.toString();
         } catch (URISyntaxException e) {
-            System.out.println("Некорректный URI: " + raw);
+            logger.warn("Некорректный URI: " + raw + e.getMessage());
             return null;
         }
     }
@@ -108,7 +110,7 @@ public class Utilz {
                     isForbidden = false;
                 }
             } catch (URISyntaxException ex) {
-                System.out.println("Что-то не так с URI " + ex.getMessage());
+                logger.warn("Что-то не так с URI " + ref + " - " +ex.getMessage());
             }
         }
         return isForbidden;
@@ -134,7 +136,7 @@ public class Utilz {
             String h2 = Optional.ofNullable(uri2.getHost()).orElse("");
             return h1.equalsIgnoreCase(h2);
         } catch (URISyntaxException e) {
-            System.out.println("Wrong URI: " + u1);
+            logger.warn("Wrong URI: " + u1 + " - " +  e.getMessage());
             return false;
         }
     }
@@ -157,8 +159,8 @@ public class Utilz {
             }
             System.out.println("Файл robots.txt сохранён как " + targetFile + " в " + getWorkingDir());
         } catch (IOException e) {
-            System.out.println("File not found");
-            e.printStackTrace();
+            logger.error("File not found " + e.getMessage());
+
         }
         return targetFile;
     }
@@ -175,7 +177,7 @@ public class Utilz {
     public static File getRobots(String fileName) {
         File file = new File(SAVE_DIR + fileName);
         if (!file.exists()) {
-            System.out.println("file not found");
+            logger.error("file not found");
             return null;
         }
         return file;
@@ -190,8 +192,19 @@ public class Utilz {
         return String.join("-", cutUrl.substring(0, endIndex), suffix);
     }
 
-    //возвращает ответ по результату коннекта к главной ссылке (константа в Арр)
-
+    public static void checkLogLocation(){
+        Path path = Paths.get(getWorkingDir(), "logs");
+        try {
+            Files.createDirectories(path);
+            logger.info("Директории (для логов) успешно созданы: " + path);
+        } catch (FileAlreadyExistsException e) {
+            logger.error("Ошибка: по пути уже существует файл: " + e.getMessage());
+        } catch (AccessDeniedException e) {
+            logger.error("Ошибка: нет доступа к каталогу: " + e.getMessage());
+        } catch (IOException e) {
+            logger.error("Другая ошибка ввода-вывода: " + e.getMessage());
+        }
+    }
 
     public static String getWorkingDir() {
         return System.getProperty("user.dir");

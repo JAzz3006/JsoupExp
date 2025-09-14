@@ -1,5 +1,8 @@
 package org.example;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -11,14 +14,16 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SiteMapGenerator extends RecursiveTask<RefNode> {
+    private static final Logger logger = LoggerFactory.getLogger(SiteMapGenerator.class);
     private static final Set<String> visited = ConcurrentHashMap.newKeySet();
-    private static final Semaphore throttle = new Semaphore(4);
+    private static final Semaphore throttle = new Semaphore(2);
     private static  final AtomicInteger budget = new AtomicInteger(600);
     private static final List<Pattern> forbidden;
     static {
         try {
             forbidden = Utilz.getForbidden(App.MAIN_URL);
         } catch (IOException | URISyntaxException e) {
+            logger.error("Проверьте наличие файла robots.txt, он должен быть скачан в src/output перед запуском приложения " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -33,8 +38,12 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
     @Override
     protected RefNode compute() {
         RefNode node = new RefNode(url);
+        if (budget.getAndDecrement() == 0){
+            logger.info("Out of budget");
+            return node;
+        }
         if (budget.getAndDecrement() < 0){
-            System.out.println("Out of budget");
+            logger.trace("Out of budget");
             return node;
         }
         List<SiteMapGenerator> tasks = new ArrayList<>();
@@ -43,7 +52,7 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
             throttle.acquire();
             doc = HtmlConnect.getDoc(url,8000, true, true);
             if (doc == null){
-                System.out.println("Что-то пошло не так при получении кода страницы");
+                logger.warn("Что-то пошло не так при получении кода страницы");
                 return node;
             }
             visited.add(Utilz.normalize(url));
@@ -68,8 +77,10 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
             Thread.sleep(300);
 
         } catch (IOException e) {
+            logger.warn("узел не содержит детей (не скачался код страницы ) " + url + " - " + e.getMessage());
             return node;
         } catch (InterruptedException e) {
+            logger.warn("Поток был прерван " + e.getMessage());
             Thread.currentThread().interrupt();
             return node;
         }finally {

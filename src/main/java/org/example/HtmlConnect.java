@@ -1,12 +1,13 @@
 package org.example;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class HtmlConnect {
+    private static final Logger logger = LoggerFactory.getLogger(HtmlConnect.class);
 
     public static final String USER_AGENT_1 = "Mozilla/5.0 (compatible; SiteMapBot/1.0; +mailto:imathing78@mail.ru)";
 
@@ -29,7 +30,7 @@ public class HtmlConnect {
         Connection.Response resp = getResponse(url, USER_AGENT_1, timeOut, ignoreHttpErr, followRedirects);
         if (resp.statusCode() < 400 && resp.statusCode() >= 100){
             doc = resp.parse();
-        }else System.out.println("Something has gone wrong at " + url);
+        }else logger.warn("Something has gone wrong at " + url);
         return doc;
     }
 }
