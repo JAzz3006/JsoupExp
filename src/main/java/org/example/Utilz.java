@@ -45,7 +45,9 @@ public class Utilz {
                     inApplicableSection = false;
                 }
             }
-        } else logger.info("File 'robots.txt' not found!");
+        } else{
+            logger.info("Файл 'robots.txt' не найден");
+        }
         return forbidden;
     }
 
@@ -69,7 +71,6 @@ public class Utilz {
         if (url.contains(rubbish)){
             int index = url.indexOf(rubbish);
             return url.substring(0, index);
-
         }
         return url;
     }
@@ -157,9 +158,9 @@ public class Utilz {
             try (FileWriter writer = new FileWriter(targetFile)) {
                 writer.write(body);
             }
-            System.out.println("Файл robots.txt сохранён как " + targetFile + " в " + getWorkingDir());
+            logger.info("Файл robots.txt сохранён как " + targetFile + " в " + getWorkingDir());
         } catch (IOException e) {
-            logger.error("File not found " + e.getMessage());
+            logger.error("Файл не найден " + e.getMessage());
 
         }
         return targetFile;
@@ -177,7 +178,7 @@ public class Utilz {
     public static File getRobots(String fileName) {
         File file = new File(SAVE_DIR + fileName);
         if (!file.exists()) {
-            logger.error("file not found");
+            logger.error("Файл не найден (" + file + ")");
             return null;
         }
         return file;

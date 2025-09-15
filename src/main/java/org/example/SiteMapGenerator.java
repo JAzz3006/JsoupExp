@@ -2,7 +2,6 @@ package org.example;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -43,7 +42,7 @@ public class SiteMapGenerator extends RecursiveTask<RefNode> {
             return node;
         }
         if (budget.getAndDecrement() < 0){
-            logger.trace("Out of budget");
+            logger.debug("Out of budget");
             return node;
         }
         List<SiteMapGenerator> tasks = new ArrayList<>();
